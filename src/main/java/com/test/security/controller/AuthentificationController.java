@@ -39,7 +39,7 @@ public class AuthentificationController {
     }
 
 
-    @PostMapping("/api/v1/auth/logout1")
+    @GetMapping("/logout1")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {

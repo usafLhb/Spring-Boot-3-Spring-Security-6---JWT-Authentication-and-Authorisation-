@@ -109,12 +109,16 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
          var refreshToken = jwtService.generateRefreshToken(user);
 
-        revokeAllUserTokens(user);
+
+
+        revokeAllUserTokens(user,jwtToken);
         saveUserToken(user, jwtToken);
         return AuthentificationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
+
+
     }
 
     private void saveUserToken(User user, String jwtToken) {
@@ -128,13 +132,24 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
-    private void revokeAllUserTokens(User user) {
+    private void saveUserToken2_true(User user, String jwtToken) {
+        var token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .expired(true)
+                .revoked(true)
+                .build();
+        tokenRepository.save(token);
+    }
+    private void revokeAllUserTokens(User user,String jwtToken) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);
+            token.setToken("jwtToken");
         });
         tokenRepository.saveAll(validUserTokens);
     }
@@ -156,7 +171,7 @@ public class AuthenticationService {
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
+                revokeAllUserTokens(user,refreshToken);
                 saveUserToken(user, accessToken);
                 var authResponse = AuthentificationResponse.builder()
                         .accessToken(accessToken)
