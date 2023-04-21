@@ -5,18 +5,22 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.springframework.security.core.GrantedAuthority;
 
 @Service
 public class JwtService {
+
+    private long jwtExpiration;
+
+    private long refreshExpiration;
     private static final String SECRET_KEY ="635166546A576E5A7134743777217A25432A462D4A614E645267556B58703273";
     public String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);
@@ -42,19 +46,32 @@ public class JwtService {
     public String generateToken(
             UserDetails userDetails
     ) {
-        return buildToken( new HashMap<>(), userDetails);
+        return buildToken( new HashMap<>(), userDetails, refreshExpiration);
     }
+
+
     private String buildToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails
-            //long expiration
+            UserDetails userDetails,
+            long expiration
     ) {
+        List<String> roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", roles);
+        claims.putAll(extraClaims);
+
         return Jwts
                 .builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername() )
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 900000))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -68,6 +85,11 @@ public class JwtService {
     }
     private Date extractExpiration(String token) {
         return extractClaim(token,Claims::getExpiration);
+    }
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
+        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
     }
 
 }
