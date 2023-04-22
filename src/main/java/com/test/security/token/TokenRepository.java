@@ -1,5 +1,6 @@
 package com.test.security.token;
 
+import com.test.security.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,4 +16,7 @@ public interface TokenRepository extends JpaRepository<Token, Integer> {
     List<Token> findAllValidTokenByUser(Integer id);
 
     Optional<Token> findByToken(String token);
+
+    Optional<User> findAllByUser(Integer user_id);
+
 }

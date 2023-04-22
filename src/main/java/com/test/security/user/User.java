@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,14 +19,26 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_user")
+@Table(name = "_user" ,
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"firstname", "lastname"})
+        })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
+    @NotNull
     private String firstname;
+
+    @NotNull
     private String lastname;
+
+    @Column(unique = true)
+    @NotNull
     private String email;
+
+    @NotNull
     private String password;
     @Enumerated(EnumType.STRING)
     List<Role> role;

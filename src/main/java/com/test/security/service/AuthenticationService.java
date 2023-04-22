@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +71,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
+static String key_jwt;
 
     public AuthentificationResponse register(RegisterRequest request) {
         List<Role> roles = new ArrayList<Role>();
@@ -87,6 +87,7 @@ public class AuthenticationService {
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateToken(user);
+        key_jwt=jwtToken;
         saveUserToken(savedUser, jwtToken);
         return AuthentificationResponse.builder()
                 .accessToken(jwtToken)
@@ -106,14 +107,27 @@ public class AuthenticationService {
         );
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken =jwtService.generateToken(user);
+
          var refreshToken = jwtService.generateRefreshToken(user);
+        System.out.println("jwtToken "+jwtToken);
+        revokeAllUserTokens(user);
+         Optional<Token> isTokenVdalid = tokenRepository.findX(user.getId());
+        System.out.println("isTokenVdalid "+isTokenVdalid);
+       /* boolean isTokenValid = tokenRepository.findByUser(user.getId())
+                .map(t -> !t.isExpired() && !t.isRevoked()  )
+                .orElse(false);
 
+        System.out.println("isTokenValid "+ isTokenValid);
+        System.out.println( "tokenRepository.findByUser(String.valueOf(user)) "+ tokenRepository.findByUser( user.getId()) );
+        if(isTokenValid)
+          revokeAllUserTokens_2(user,jwtToken);
 
-
-        revokeAllUserTokens(user,jwtToken);
+        else*/
         saveUserToken(user, jwtToken);
+
         return AuthentificationResponse.builder()
+
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -142,14 +156,25 @@ public class AuthenticationService {
                 .build();
         tokenRepository.save(token);
     }
-    private void revokeAllUserTokens(User user,String jwtToken) {
+    private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);
-            token.setToken("jwtToken");
+         //  token.setToken(key_jwt);
+        });
+        tokenRepository.saveAll(validUserTokens);
+    }
+
+    private void revokeAllUserTokens_2(User user,String jwtToken) {
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+        if (validUserTokens.isEmpty())
+            return;
+        validUserTokens.forEach(token -> {
+
+              token.setToken(jwtToken);
         });
         tokenRepository.saveAll(validUserTokens);
     }
@@ -171,7 +196,7 @@ public class AuthenticationService {
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user,refreshToken);
+                revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
                 var authResponse = AuthentificationResponse.builder()
                         .accessToken(accessToken)

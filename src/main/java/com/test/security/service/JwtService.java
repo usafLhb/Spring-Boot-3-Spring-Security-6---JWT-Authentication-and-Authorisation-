@@ -48,7 +48,31 @@ public class JwtService {
     ) {
         return buildToken( new HashMap<>(), userDetails, refreshExpiration);
     }
+    public String buildToken_2(UserDetails userDetails) {
 
+        Map<String, Object> extraClaims = null;
+        long expiration=refreshExpiration;
+
+        List<String> roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", roles);
+        claims.putAll(extraClaims);
+
+        return Jwts
+                .builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername() )
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 900000))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
 
     private String buildToken(
             Map<String, Object> extraClaims,
