@@ -112,18 +112,16 @@ static String key_jwt;
          var refreshToken = jwtService.generateRefreshToken(user);
         System.out.println("jwtToken "+jwtToken);
         revokeAllUserTokens(user);
-         Optional<Token> isTokenVdalid = tokenRepository.findX(user.getId());
-        System.out.println("isTokenVdalid "+isTokenVdalid);
-       /* boolean isTokenValid = tokenRepository.findByUser(user.getId())
+          Optional<Token> isTokenVdalid = tokenRepository.findAllByUser(user);
+         System.out.println("isTokenVdalid "+isTokenVdalid);
+         boolean isTokenValid = tokenRepository.findAllByUser(user)
                 .map(t -> !t.isExpired() && !t.isRevoked()  )
                 .orElse(false);
 
-        System.out.println("isTokenValid "+ isTokenValid);
-        System.out.println( "tokenRepository.findByUser(String.valueOf(user)) "+ tokenRepository.findByUser( user.getId()) );
         if(isTokenValid)
           revokeAllUserTokens_2(user,jwtToken);
 
-        else*/
+        else
         saveUserToken(user, jwtToken);
 
         return AuthentificationResponse.builder()
@@ -173,7 +171,8 @@ static String key_jwt;
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
-
+            token.setExpired(false);
+            token.setRevoked(false);
               token.setToken(jwtToken);
         });
         tokenRepository.saveAll(validUserTokens);
