@@ -13,6 +13,7 @@ import com.test.security.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -95,9 +97,6 @@ static String key_jwt;
                 .build();
     }
 
-
-
-
     public AuthentificationResponse authenticate(AuthentificationRequest  request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -110,25 +109,38 @@ static String key_jwt;
         var jwtToken =jwtService.generateToken(user);
 
          var refreshToken = jwtService.generateRefreshToken(user);
-        System.out.println("jwtToken "+jwtToken);
-        revokeAllUserTokens(user);
-          Optional<Token> isTokenVdalid = tokenRepository.findAllByUser(user);
-         System.out.println("isTokenVdalid "+isTokenVdalid);
-         boolean isTokenValid = tokenRepository.findAllByUser(user)
-                .map(t -> !t.isExpired() && !t.isRevoked()  )
-                .orElse(false);
 
-        if(isTokenValid)
-          revokeAllUserTokens_2(user,jwtToken);
 
-        else
-        saveUserToken(user, jwtToken);
+        List<Token> isTokenVdalid2 = tokenRepository.findAllByUser(user);
+        boolean anyExpiredAndRevoked = isTokenVdalid2.stream()
+                .anyMatch(t -> t.isExpired() && t.isRevoked());
+
+        //SI isRevoked ET isExpired EST 0 LA 1ER TENTATIVE ALORS
+        if(!anyExpiredAndRevoked){
+            revokeAllUserTokens(user);
+            saveUserToken(user, jwtToken);
+        }
+        //SI isRevoked ET isExpired EST 1 (IT'S NOT  THE  FOR  THE  FIRST  TIME )
+        else{
+             anyExpiredAndRevoked = isTokenVdalid2.stream()
+                    .anyMatch(t -> !t.isExpired() && !t.isRevoked());
+            if(!anyExpiredAndRevoked){
+                saveUserToken(user, jwtToken);
+            }
+            else
+             revokeAllUserTokens_2(user,jwtToken);
+
+         }
+
+
 
         return AuthentificationResponse.builder()
 
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
+
+
 
 
     }

@@ -55,7 +55,6 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
             System.out.println("Test 3 ");
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-
             boolean isTokenValid = tokenRepository.findByToken(jwt)
                     .map(t -> !t.isExpired() && !t.isRevoked()  )
                     .orElse(false);
@@ -75,7 +74,6 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
                 System.out.println("Test 5 "+authToken);
             }
         }
-
         filterChain.doFilter(request, response);
     }
 

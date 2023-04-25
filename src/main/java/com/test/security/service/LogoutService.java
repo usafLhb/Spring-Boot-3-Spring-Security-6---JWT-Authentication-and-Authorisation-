@@ -26,13 +26,14 @@ public class LogoutService implements LogoutHandler {
             return;
         }
         jwt = authHeader.substring(7);
+        System.out.println("jwt " + jwt);
         var storedToken = tokenRepository.findByToken(jwt)
                 .orElse(null);
         if (storedToken != null) {
-            storedToken.setExpired(true);
-            storedToken.setRevoked(true);
-            tokenRepository.save(storedToken);
-
+           /* storedToken.setExpired(true);
+            storedToken.setRevoked(true);*/
+            //tokenRepository.save(storedToken);
+            tokenRepository.delete(storedToken);
             SecurityContextHolder.clearContext();
         }
     }
