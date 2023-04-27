@@ -1,0 +1,71 @@
+ <wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://ws.impl.services.referentiel.devass.eai/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://ws.pub.services.referentiel.devass.eai/" name="ServiceReferentielDevAssBDCWSService" targetNamespace="http://ws.impl.services.referentiel.devass.eai/">
+    <wsdl:import location="http://126.7.210.20/REFERENTIEL/services/referentielDevAssBDC?wsdl=IReferentielDevAssBDCWS.wsdl" namespace="http://ws.pub.services.referentiel.devass.eai/"> </wsdl:import>
+    <wsdl:binding name="ServiceReferentielDevAssBDCWSServiceSoapBinding" type="ns1:IReferentielDevAssBDCWS">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="searchRemisesByNature">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="searchRemisesByNature">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="searchRemisesByNatureResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="Exception">
+                <soap:fault name="Exception" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="synchroniseDossierSinistreAT">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="synchroniseDossierSinistreAT">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="synchroniseDossierSinistreATResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="Exception">
+                <soap:fault name="Exception" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createRemise">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="createRemise">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="createRemiseResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="Exception">
+                <soap:fault name="Exception" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="searchInfosQtcFromBDC">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="searchInfosQtcFromBDC">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="searchInfosQtcFromBDCResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="Exception">
+                <soap:fault name="Exception" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="searchRemises">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="searchRemises">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="searchRemisesResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="Exception">
+                <soap:fault name="Exception" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="ServiceReferentielDevAssBDCWSService">
+        <wsdl:port binding="tns:ServiceReferentielDevAssBDCWSServiceSoapBinding" name="ServiceReferentielDevAssBDCWSPort">
+            <soap:address location="http://126.7.210.20/REFERENTIEL/services/referentielDevAssBDC"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

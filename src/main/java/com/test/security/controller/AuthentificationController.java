@@ -4,6 +4,7 @@ import com.test.security.auth.AuthentificationRequest;
 import com.test.security.auth.AuthentificationResponse;
 import com.test.security.auth.RegisterRequest;
 import com.test.security.service.AuthenticationService;
+import com.test.security.service.LogoutService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthentificationController {
     private  final AuthenticationService authenticationService;
+    private  final LogoutService logoutService;
+
     @PostMapping("/register")
     public ResponseEntity<AuthentificationResponse> register(@RequestBody RegisterRequest request ){
         return ResponseEntity.ok(authenticationService.register(request));
@@ -42,9 +45,11 @@ public class AuthentificationController {
     @GetMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
+      //  if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
-        }
+
+        logoutService.logout(request, response, authentication);
+     //   }
         return ResponseEntity.ok("Logout successful");
     }
 
